@@ -21,7 +21,7 @@ export function FileUploadZone({ projectId, onUploadComplete }: FileUploadZonePr
   const [uploadState, setUploadState] = useState<UploadState>("idle")
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [dragActive, setDragActive] = useState(false)
-  const [successCount, setSuccessCount] = useState(0)
+  const [successVersion, setSuccessVersion] = useState(0)
   const [errorMessage, setErrorMessage] = useState("")
   const [dotCount, setDotCount] = useState(1)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -97,13 +97,13 @@ export function FileUploadZone({ projectId, onUploadComplete }: FileUploadZonePr
 
       if (data.success) {
         setUploadState("success")
-        setSuccessCount(data.data?.filesCount ?? 0)
+        setSuccessVersion(data.data?.versionNumber ?? 1)
         toast.success(data.message)
         onUploadComplete()
       } else {
         setUploadState("error")
-        setErrorMessage(data.message || "Upload failed")
-        toast.error(data.message)
+        setErrorMessage(data.error ?? data.message ?? "Upload failed")
+        toast.error(data.error ?? data.message)
       }
     } catch (err: any) {
       stopDotAnimation()
@@ -213,10 +213,10 @@ export function FileUploadZone({ projectId, onUploadComplete }: FileUploadZonePr
           <CheckCircle size={24} style={{ color: "var(--success, #15803d)", flexShrink: 0 }} />
           <div>
             <p style={{ margin: 0, fontWeight: 600, fontSize: "0.875rem", color: "var(--text)" }}>
-              Upload complete — {successCount} file{successCount !== 1 ? "s" : ""} extracted
+              Version {successVersion} uploaded successfully
             </p>
             <p style={{ margin: "0.25rem 0 0", fontSize: "0.75rem", color: "var(--text-muted)" }}>
-              Project files are now visible below
+              New version is now visible in the versions panel below
             </p>
           </div>
           <button

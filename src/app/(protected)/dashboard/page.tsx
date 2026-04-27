@@ -31,7 +31,7 @@ export default async function DashboardPage() {
 
   // ── COORDINATOR full dashboard ──────────────────────────────────────────
   if (role === "COORDINATOR" && activeBatch) {
-    const [ideas, projects, batchMembers] = await Promise.all([
+    const [ideas, projects, batchMembers, recentVersions] = await Promise.all([
       prisma.idea.findMany({
         where: { department: dept as Department },
         include: { submittedBy: { select: { name: true } } },
@@ -49,6 +49,15 @@ export default async function DashboardPage() {
         where: { batchId: activeBatch.id },
         include: { user: { select: { id: true, name: true, email: true, role: true } } },
       }),
+      prisma.projectVersion.findMany({
+        where: { project: { department: dept as Department } },
+        orderBy: { createdAt: "desc" },
+        take: 5,
+        include: {
+          uploadedBy: { select: { name: true } },
+          project: { select: { id: true, name: true } },
+        },
+      }),
     ])
 
     const interns = batchMembers.filter(m => m.batchRole === "INTERN").map(m => m.user)
@@ -57,7 +66,7 @@ export default async function DashboardPage() {
     const rejectedIdeas = ideas.filter(i => i.status === "REJECTED").length
     const activeProjects = projects.filter(p => p.status === "IN_PROGRESS").length
 
-    // Recent activity — last 8 events merged from ideas + projects
+    // Recent activity — last 8 events merged from ideas + projects + version uploads
     const recentActivity = [
       ...ideas.slice(0, 5).map(i => ({
         type: "idea" as const,
@@ -72,6 +81,13 @@ export default async function DashboardPage() {
         actor: null,
         status: p.status,
         date: p.updatedAt,
+      })),
+      ...recentVersions.map(v => ({
+        type: "version" as const,
+        title: `v${v.versionNumber} uploaded to "${v.project.name}"`,
+        actor: v.uploadedBy.name,
+        status: "UPLOADED",
+        date: v.createdAt,
       })),
     ]
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
