@@ -18,7 +18,7 @@ interface Props {
   pendingIdeas: { id: string; title: string; tags: string[]; submittedBy: string; createdAt: Date }[]
   projects: any[]
   interns: { id: string; name: string; email: string; role: string }[]
-  recentActivity: { type: "idea" | "project" | "version"; title: string; actor: string | null; status: string; date: Date }[]
+  recentActivity: { type: "idea" | "project"; title: string; actor: string | null; status: string; date: Date }[]
 }
 
 // ── Shared styles ─────────────────────────────────────────────────────────────
@@ -52,7 +52,6 @@ const statusColors: Record<string, { bg: string; color: string }> = {
   IDEA:        { bg: "rgba(180,83,9,0.1)",    color: "var(--warning)" },
   IN_PROGRESS: { bg: "rgba(30,64,175,0.1)",   color: "var(--primary)" },
   COMPLETED:   { bg: "rgba(21,128,61,0.1)",   color: "var(--success)" },
-  UPLOADED:    { bg: "rgba(21,128,61,0.1)",   color: "var(--success)" },
 }
 
 function StatusBadge({ status }: { status: string }) {
@@ -321,10 +320,10 @@ export function CoordinatorDashboard({ dept, activeBatch, stats, pendingIdeas, p
                       width: 28, height: 28, borderRadius: "50%", flexShrink: 0,
                       display: "flex", alignItems: "center", justifyContent: "center",
                       fontSize: "0.65rem", fontWeight: 700,
-                      backgroundColor: a.type === "idea" ? "rgba(180,83,9,0.1)" : a.type === "version" ? "rgba(21,128,61,0.1)" : "rgba(30,64,175,0.1)",
-                      color: a.type === "idea" ? "var(--warning)" : a.type === "version" ? "var(--success)" : "var(--primary)",
+                      backgroundColor: a.type === "idea" ? "rgba(180,83,9,0.1)" : "rgba(30,64,175,0.1)",
+                      color: a.type === "idea" ? "var(--warning)" : "var(--primary)",
                     }}>
-                      {a.type === "idea" ? "💡" : a.type === "version" ? "📦" : "📁"}
+                      {a.type === "idea" ? "💡" : "📁"}
                     </span>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <p style={{ margin: 0, fontSize: "0.775rem", fontWeight: 600, color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>

@@ -19,7 +19,7 @@ export default async function ProjectsPage() {
       where: whereCondition,
       include: {
         members: { include: { user: { select: { name: true } } } },
-        _count: { select: { contributions: true, files: true } },
+        _count: { select: { contributions: true } },
       },
       orderBy: { createdAt: "desc" },
     }),

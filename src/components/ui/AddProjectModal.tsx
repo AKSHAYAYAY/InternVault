@@ -173,7 +173,23 @@ function FormContent({ department, techStack, setTechStack, tags, setTags, inter
       <div>
         <h4 style={{ margin: "0 0 1rem 0", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--text-muted)" }}>Project Links</h4>
         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-          <div><label style={{ fontSize:"0.875rem", fontWeight:500 }}>GitHub Link</label><input type="url" name="githubLink" style={inputStyle} /></div>
+          <div>
+            <label style={{ fontSize:"0.875rem", fontWeight:500 }}>GitHub Repository</label>
+            <input
+              type="url"
+              name="githubLink"
+              placeholder="https://github.com/username/repository"
+              style={inputStyle}
+              onChange={e => {
+                const v = e.target.value
+                const valid = !v || /^https:\/\/github\.com\/[\w.-]+\/[\w.-]+/.test(v)
+                e.target.setCustomValidity(valid ? "" : "Please enter a valid GitHub repository URL")
+              }}
+            />
+            <p style={{ margin: "0.25rem 0 0", fontSize: "0.75rem", color: "var(--text-muted)" }}>
+              Link a public GitHub repository to display the project file structure here.
+            </p>
+          </div>
           <div><label style={{ fontSize:"0.875rem", fontWeight:500 }}>PRD / Document</label><input type="url" name="prdLink" style={inputStyle} /></div>
           <div><label style={{ fontSize:"0.875rem", fontWeight:500 }}>Live Demo / Model</label><input type="url" name="workingModelLink" style={inputStyle} /></div>
           <div><label style={{ fontSize:"0.875rem", fontWeight:500 }}>Figma / Design Link</label><input type="url" name="figmaLink" style={inputStyle} /></div>

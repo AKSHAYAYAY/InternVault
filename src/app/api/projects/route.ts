@@ -30,16 +30,15 @@ export async function GET(req: NextRequest) {
       where,
       include: {
         members: { include: { user: { select: { name: true } } } },
-        _count: { select: { contributions: true, files: true } },
+        _count: { select: { contributions: true } },
       },
       orderBy: { createdAt: "desc" },
     })
 
     const transformed = projects.map(p => ({
       ...p,
-      memberNames: p.members.map(m => m.user.name),
+      memberNames: p.members.map((m: any) => m.user.name),
       contributorCount: p.members.length,
-      fileCount: p._count.files,
       contributionCount: p._count.contributions,
     }))
 

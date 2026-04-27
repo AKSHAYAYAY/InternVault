@@ -19,10 +19,6 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
           include: { intern: { select: { name: true, department: true } } },
           orderBy: { date: "desc" },
         },
-        files: {
-          include: { uploadedBy: { select: { name: true } } },
-          orderBy: { uploadedAt: "desc" },
-        },
       },
     })
 
