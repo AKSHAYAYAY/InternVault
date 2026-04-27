@@ -1,0 +1,195 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  INTERN
+  COORDINATOR
+  SUPER_ADMIN
+}
+
+enum Department {
+  IT
+  REVENUE
+  LAWS
+  AICSTL
+}
+
+enum IdeaStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ProjectStatus {
+  IDEA
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum BatchMemberRole {
+  INTERN
+  COORDINATOR
+}
+
+model User {
+  id             String          @id @default(uuid())
+  name           String
+  email          String          @unique
+  password       String
+  role           Role            @default(INTERN)
+  department     Department?
+  githubLink     String?
+  linkedinLink   String?
+  createdAt      DateTime        @default(now())
+
+  // Relations
+  submittedIdeas    Idea[]           @relation("UserIdeas")
+  createdProjects   Project[]        @relation("UserProjects")
+  projectMemberships ProjectMember[]
+  uploadedFiles     ProjectFile[]
+  contributions     Contribution[]
+  batchMemberships  BatchMember[]    @relation("UserBatchMembers")
+  promotedMembers   BatchMember[]    @relation("PromotedBy")
+  createdBatches    Batch[]          @relation("BatchCreatedBy")
+  projectVersions   ProjectVersion[]
+}
+
+model Batch {
+  id            String      @id @default(uuid())
+  name          String      // e.g. "IT Batch 3"
+  batchNumber   Int         // sequential per department: 1, 2, 3...
+  department    Department
+  startDate     DateTime
+  endDate       DateTime?
+  isActive      Boolean     @default(false)
+  createdAt     DateTime    @default(now())
+  createdById   String
+  createdBy     User        @relation("BatchCreatedBy", fields: [createdById], references: [id])
+
+  members       BatchMember[]
+  projects      Project[]
+  ideas         Idea[]
+
+  @@unique([batchNumber, department])
+}
+
+model BatchMember {
+  id            String          @id @default(uuid())
+  batchId       String
+  batch         Batch           @relation(fields: [batchId], references: [id])
+  userId        String
+  user          User            @relation("UserBatchMembers", fields: [userId], references: [id])
+  batchRole     BatchMemberRole @default(INTERN)
+  promotedAt    DateTime?
+  promotedById  String?
+  promotedBy    User?           @relation("PromotedBy", fields: [promotedById], references: [id])
+  joinedAt      DateTime        @default(now())
+
+  @@unique([batchId, userId])
+}
+
+model Idea {
+  id                String     @id @default(uuid())
+  title             String
+  shortDescription  String     @default("")
+  description       String     // kept for migration safety — maps to problemStatement
+  problemStatement  String     @default("")
+  proposedSolution  String     @default("")
+  techStack         String[]   @default([])
+  department        Department
+  tags              String[]
+  status            IdeaStatus @default(PENDING)
+  submittedById     String
+  submittedBy       User       @relation("UserIdeas", fields: [submittedById], references: [id])
+  batchId           String?
+  batch             Batch?     @relation(fields: [batchId], references: [id])
+  upvotes           Int        @default(0)
+  createdAt         DateTime   @default(now())
+}
+
+model Project {
+  id                String          @id @default(uuid())
+  name              String
+  description       String
+  department        Department
+  status            ProjectStatus   @default(IDEA)
+  githubLink        String?
+  prdLink           String?
+  workingModelLink  String?
+  figmaLink         String?
+  presentationLink  String?
+  techStack         String[]
+  problemStatement  String?
+  outcomes          String?
+  folderStructure   String?
+  tags              String[]
+  createdById       String
+  createdBy         User            @relation("UserProjects", fields: [createdById], references: [id])
+  startedInBatch    Int             // batch number when project was created
+  continuedInBatches Int[]          @default([])
+  batchId           String?         // FK to current/originating batch
+  batch             Batch?          @relation(fields: [batchId], references: [id])
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  members       ProjectMember[]
+  files         ProjectFile[]
+  contributions Contribution[]
+  versions      ProjectVersion[]
+}
+
+model ProjectVersion {
+  id            String   @id @default(uuid())
+  projectId     String
+  project       Project  @relation(fields: [projectId], references: [id])
+
+  versionNumber Int
+  uploadedById  String
+  uploadedBy    User     @relation(fields: [uploadedById], references: [id])
+
+  zipPath       String   // local path to stored zip
+  extractedJson Json?    // folder structure
+  readmeContent String?  // extracted README.md content
+
+  createdAt     DateTime @default(now())
+
+  @@unique([projectId, versionNumber])
+}
+
+model ProjectMember {
+  id        String   @id @default(uuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  joinedAt  DateTime @default(now())
+
+  @@unique([projectId, userId])
+}
+
+model ProjectFile {
+  id           String   @id @default(uuid())
+  projectId    String
+  project      Project  @relation(fields: [projectId], references: [id])
+  fileName     String
+  filePath     String
+  uploadedById String
+  uploadedBy   User     @relation(fields: [uploadedById], references: [id])
+  uploadedAt   DateTime @default(now())
+}
+
+model Contribution {
+  id          String   @id @default(uuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id])
+  internId    String
+  intern      User     @relation(fields: [internId], references: [id])
+  description String
+  batchNumber Int      // which batch number this contribution was made in
+  date        DateTime @default(now())
+}
