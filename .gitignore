@@ -24,6 +24,8 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.env
+
 
 # local env files
 .env*.local
@@ -40,4 +42,7 @@ next-env.d.ts
 
 # sgit remote add origin https://github.com/AKSHAYAYAY/InternVault.git
 # git branch -M main
-# git push -u origin main
+# git push -u origin main.env
+.env.local
+.env
+.env.local
