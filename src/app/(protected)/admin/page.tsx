@@ -73,7 +73,7 @@ export default async function AdminPage() {
 
   const projectRows = projects.map(p => ({
     id: p.id, name: p.name, status: p.status,
-    batchYear: p.batchYear, teamSize: p._count.members,
+    batchNumber: p.startedInBatch, teamSize: p._count.members,
     updatedAt: p.updatedAt
   }))
 
@@ -89,7 +89,7 @@ export default async function AdminPage() {
   const projectColumns: ColumnDef[] = [
     { key: "name", header: "Name", sortable: true },
     { key: "status", header: "Status", sortable: true, type: "status" },
-    { key: "batchYear", header: "Batch", sortable: true },
+    { key: "batchNumber", header: "Batch", sortable: true },
     { key: "teamSize", header: "Team", sortable: true },
     { key: "updatedAt", header: "Last Updated", sortable: true, type: "date" },
     { key: "actions", header: "Actions", type: "project-actions" }

@@ -70,7 +70,6 @@ function FormContent({ department, techStack, setTechStack, tags, setTags, inter
           description: data.description,
           problemStatement: data.problemStatement,
           status: data.status,
-          batchYear: undefined,
           startedInBatch: data.startedInBatch,
           githubLink: data.githubLink || null,
           prdLink: data.prdLink || null,
